@@ -4,6 +4,7 @@
 
 #include "harness.h"
 #include "queue.h"
+#include "list.h"
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
@@ -17,7 +18,12 @@
  */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *head;
+    INIT_LIST_HEAD(head);
+    if (head == NULL) {
+        return NULL;
+    }
+    return head;
 }
 
 /* Free all storage used by queue */
