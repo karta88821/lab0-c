@@ -153,7 +153,15 @@ void q_release_element(element_t *e)
  */
 int q_size(struct list_head *head)
 {
-    return -1;
+    if (head == NULL || list_empty(head)) {
+        return 0;
+    }
+    int size = 0;
+    struct list_head *node = NULL;
+    list_for_each (node, head) {
+        size++;
+    }
+    return size;
 }
 
 /*
