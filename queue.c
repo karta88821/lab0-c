@@ -29,6 +29,7 @@ struct list_head *q_new()
 /* Free all storage used by queue */
 void q_free(struct list_head *l)
 {
+    // BUG
     element_t *node = NULL, *safe = NULL;
     list_for_each_entry_safe (node, safe, l, list) {
         list_del(&node->list);
@@ -167,7 +168,16 @@ int q_size(struct list_head *head)
  */
 bool q_delete_mid(struct list_head *head)
 {
-    // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    if (!head || list_empty(head)) {
+        return false;
+    }
+
+    int mid = q_size(head) / 2;
+    struct list_head *list_mid = head->next;
+    for (int i = 0; i < mid; i++) {
+        list_mid = list_mid->next;
+    }
+    list_del(list_mid);
     return true;
 }
 
@@ -203,6 +213,7 @@ void q_swap(struct list_head *head)
  */
 void q_reverse(struct list_head *head)
 {
+    // BUG
     if (head == NULL || list_empty(head) || list_is_singular(head)) {
         return;
     }
@@ -223,4 +234,9 @@ void q_reverse(struct list_head *head)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    if (head == NULL || list_empty(head) || list_is_singular(head)) {
+        return;
+    }
+}
