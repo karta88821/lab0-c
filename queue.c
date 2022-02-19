@@ -172,12 +172,14 @@ bool q_delete_mid(struct list_head *head)
         return false;
     }
 
-    int mid = q_size(head) / 2;
-    struct list_head *list_mid = head->next;
-    for (int i = 0; i < mid; i++) {
-        list_mid = list_mid->next;
+    struct list_head **indirect = &head->next;
+    for (struct list_head *fast = head->next;
+         fast != head && fast->next != head; fast = fast->next->next) {
+        indirect = &(*indirect)->next;
     }
-    list_del(list_mid);
+    struct list_head *del = *indirect;
+    *indirect = (*indirect)->next;
+    list_del(del);
     return true;
 }
 
