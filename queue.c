@@ -29,12 +29,15 @@ struct list_head *q_new()
 /* Free all storage used by queue */
 void q_free(struct list_head *l)
 {
-    // BUG
+    if (!l) {
+        return;
+    }
+
     element_t *node = NULL, *safe = NULL;
     list_for_each_entry_safe (node, safe, l, list) {
-        list_del(&node->list);
-        free(node);
+        q_release_element(node);
     }
+    free(l);
 }
 
 /*
