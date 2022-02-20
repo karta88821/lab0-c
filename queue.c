@@ -231,22 +231,14 @@ void q_swap(struct list_head *head)
  */
 void q_reverse(struct list_head *head)
 {
-    // BUG
-    /*
     if (head == NULL || list_empty(head) || list_is_singular(head)) {
         return;
     }
-    struct list_head *curr = head->prev, *tmp = NULL;
-    while (curr != head) {
-        tmp = curr->prev;
-        curr->prev = curr->next;
-        curr->next = tmp;
-        curr = curr->prev;
+
+    struct list_head *iter, *next;
+    list_for_each_safe (iter, next, head) {
+        list_move(iter, head);
     }
-    tmp = curr->prev;
-    curr->prev = curr->next;
-    curr->next = tmp;
-    */
 }
 
 static struct list_head *merge(struct list_head *l, struct list_head *r)
