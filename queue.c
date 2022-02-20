@@ -229,6 +229,7 @@ void q_swap(struct list_head *head)
 void q_reverse(struct list_head *head)
 {
     // BUG
+    /*
     if (head == NULL || list_empty(head) || list_is_singular(head)) {
         return;
     }
@@ -242,16 +243,66 @@ void q_reverse(struct list_head *head)
     tmp = curr->prev;
     curr->prev = curr->next;
     curr->next = tmp;
+    */
 }
 
-/*
- * Sort elements of queue in ascending order
- * No effect if q is NULL or empty. In addition, if q has only one
- * element, do nothing.
- */
+static struct list_head *merge(struct list_head *l, struct list_head *r)
+{
+    struct list_head *head = l;
+    struct list_head *prev = NULL;
+    struct list_head **ptr = &head;
+    struct list_head **node;
+
+    for (node = NULL; l && r; *node = (*node)->next) {
+        node = strcmp(list_entry(l, element_t, list)->value,
+                      list_entry(r, element_t, list)->value) < 0
+                   ? &l
+                   : &r;
+        (*node)->prev = prev;
+        prev = *node;
+        *ptr = *node;
+        ptr = &(*ptr)->next;
+    }
+
+    *ptr = (l) ? l : r;
+    (*ptr)->prev = prev;
+
+    return head;
+}
+
+static struct list_head *mergesort(struct list_head *head)
+{
+    if (!head->next) {
+        return head;
+    }
+
+    struct list_head *mid = head;
+    for (struct list_head *fast = head->next; fast && fast->next;
+         fast = fast->next->next) {
+        mid = mid->next;
+    }
+    struct list_head *r_list = mergesort(mid->next);
+    mid->next = NULL;
+    struct list_head *l_list = mergesort(head);
+    head = merge(l_list, r_list);
+
+    return head;
+}
+
 void q_sort(struct list_head *head)
 {
-    if (head == NULL || list_empty(head) || list_is_singular(head)) {
+    if (!head || list_empty(head) || list_is_singular(head)) {
         return;
     }
+
+    head->prev->next = NULL;
+    struct list_head *sorted = mergesort(head->next);
+    head->next = sorted;
+    sorted->prev = head;
+
+    while (sorted->next) {
+        sorted = sorted->next;
+    }
+    sorted->next = head;
+    head->prev = sorted;
 }
