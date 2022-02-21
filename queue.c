@@ -133,9 +133,16 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
         return NULL;
     }
 
-    element_t *element = list_first_entry(head, element_t, list);
-    list_del(&element->list);
-    strncpy(sp, element->value, bufsize);
+    element_t *element = list_entry(head->next, element_t, list);
+
+    // bufsize -> strlen(sp) + 1
+    // strncpy中的count: 最多複製bufsize個char到sp
+    if (sp) {
+        strncpy(sp, element->value, bufsize - 1);
+        strncpy(sp + bufsize - 1, "\0", 1);
+    }
+
+    list_del(head->next);
 
     return element;
 }
@@ -150,9 +157,14 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
         return NULL;
     }
 
-    element_t *element = list_last_entry(head, element_t, list);
-    list_del(&element->list);
-    strncpy(sp, element->value, bufsize);
+    element_t *element = list_entry(head->prev, element_t, list);
+
+    if (sp) {
+        strncpy(sp, element->value, bufsize - 1);
+        strncpy(sp + bufsize - 1, "\0", 1);
+    }
+
+    list_del(head->prev);
 
     return element;
 }
@@ -197,14 +209,13 @@ bool q_delete_mid(struct list_head *head)
         return false;
     }
 
-    struct list_head **indirect = &head->next;
+    struct list_head *slow = head->next;
     for (struct list_head *fast = head->next;
          fast != head && fast->next != head; fast = fast->next->next) {
-        indirect = &(*indirect)->next;
+        slow = slow->next;
     }
-    struct list_head *del = *indirect;
-    *indirect = (*indirect)->next;
-    q_release_element(list_entry(del, element_t, list));
+    list_del(slow);
+    q_release_element(list_entry(slow, element_t, list));
     return true;
 }
 
